@@ -1,12 +1,17 @@
 package discordbot
 
 import (
+	"fmt"
 	cowinapi "go-cowin-bot/cowin-api"
 	"log"
 	"os"
 	"time"
 
 	"github.com/bwmarrin/discordgo"
+)
+
+const (
+	DcordMsg = "CenterID: %v\nCenterName: %v\nPincode: %v\nFeeType: %v\nAvailableCapacity: %v\nMinAge: %v\nVaccineName: %v\nSlots: %v\nDate: %v"
 )
 
 func Start(killCh chan os.Signal) {
@@ -43,7 +48,8 @@ func Start(killCh chan os.Signal) {
 
 	time.Sleep(2 * time.Second)
 
-	for i := 0; i < 2; i++ {
+	// todo make it poll until stopped
+	for i := 0; i < 1; i++ {
 		time.Sleep(2 * time.Second)
 
 		output, err := cowinapi.HitURL("265", "18")
@@ -54,7 +60,10 @@ func Start(killCh chan os.Signal) {
 		}
 
 		if output != nil {
-			dg.ChannelMessageSend(ChannelID, string(output))
+			for _, o := range output {
+				msg := fmt.Sprintf(DcordMsg, o.CenterID, o.CenterName, o.Pincode, o.FeeType, o.AvailableCapacity, o.MinAge, o.VaccineName, o.Slots, o.Date)
+				dg.ChannelMessageSend(ChannelID, string(msg))
+			}
 		}
 	}
 
