@@ -55,7 +55,6 @@ func Start(killCh chan os.Signal) {
 		output, err := cowinapi.HitURL("265", "18")
 		if err != nil {
 			log.Println("ERROR: ", err)
-			dg.ChannelMessageSend(ChannelID, string(err.Error()))
 			continue
 		}
 
