@@ -9,14 +9,16 @@ import (
 	"github.com/bwmarrin/discordgo"
 )
 
-var (
-	ChannelID = "838517556905246795"
-)
-
 func Start(killCh chan os.Signal) {
 	Token := os.Getenv("DISCORD_TOKEN")
 	if Token == "" {
 		log.Println("did not find DISCORD_TOKEN in environment")
+		return
+	}
+
+	ChannelID := os.Getenv("CHANNEL_ID")
+	if Token == "" {
+		log.Println("did not find CHANNEL_ID in environment")
 		return
 	}
 
