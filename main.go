@@ -58,7 +58,7 @@ type OutputInfo struct {
 
 func main() {
 	r := mux.NewRouter()
-	r.HandleFunc("/{age}", hitURL)
+	r.HandleFunc("/{district_id}/{age}", hitURL)
 	http.Handle("/", r)
 
 	srv := &http.Server{
@@ -73,7 +73,14 @@ func main() {
 }
 
 func hitURL(w http.ResponseWriter, r *http.Request) {
-	district_id := 265
+	vars := mux.Vars(r)
+
+	district_id, ok := vars["district_id"]
+	if !ok {
+		// default to 265
+		district_id = "265"
+	}
+
 	date := time.Now().Format(dateLayout)
 	url := fmt.Sprintf("https://cdn-api.co-vin.in/api/v2/appointment/sessions/calendarByDistrict?district_id=%v&date=%v", district_id, date)
 
@@ -105,7 +112,6 @@ func hitURL(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	vars := mux.Vars(r)
 	varAge, ok := vars["age"]
 	if !ok {
 		varAge = "18"
