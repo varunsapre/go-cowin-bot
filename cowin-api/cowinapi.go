@@ -93,6 +93,12 @@ func getAvailabilites(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	if output == nil {
+		msg := fmt.Sprintf("disctrictID : %v | minimumAge: %v | NO VACANCIES", district_id, varAge)
+		w.Write([]byte(msg))
+		return
+	}
+
 	w.Write(output)
 }
 
@@ -135,6 +141,8 @@ func HitURL(district_id, age string) ([]byte, error) {
 		}
 	}
 
+	log.Printf("minAge: %v, No. Of Availabilites: %v", minAge, len(availabilites))
+
 	if len(availabilites) == 0 {
 		return nil, nil
 	}
@@ -143,8 +151,6 @@ func HitURL(district_id, age string) ([]byte, error) {
 	if err != nil {
 		return nil, err
 	}
-
-	log.Printf("minAge: %v, No. Of Availabilites: %v", minAge, len(availabilites))
 
 	return output, nil
 }
