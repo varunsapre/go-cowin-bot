@@ -49,8 +49,8 @@ func Start(killCh chan os.Signal) {
 	time.Sleep(2 * time.Second)
 
 	// todo make it poll until stopped
-	for i := 0; i < 1; i++ {
-		time.Sleep(2 * time.Second)
+	for {
+		time.Sleep(1 * time.Minute)
 
 		output, err := cowinapi.HitURL("265", "18")
 		if err != nil {
@@ -66,6 +66,4 @@ func Start(killCh chan os.Signal) {
 			}
 		}
 	}
-
-	killCh <- os.Interrupt
 }
