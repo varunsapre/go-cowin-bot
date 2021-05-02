@@ -77,12 +77,13 @@ func getAvailabilites(w http.ResponseWriter, r *http.Request) {
 
 	district_id, ok := vars["district_id"]
 	if !ok {
-		// default to 265
+		// default districit to 265 (bengaluru urban)
 		district_id = "265"
 	}
 
 	varAge, ok := vars["age"]
 	if !ok {
+		// default minimun age to 18
 		varAge = "18"
 	}
 
@@ -99,10 +100,17 @@ func getAvailabilites(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	w.Write(output)
+	strOutput, err := json.MarshalIndent(output, " ", " ")
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		w.Write([]byte(err.Error()))
+		return
+	}
+
+	w.Write(strOutput)
 }
 
-func HitURL(district_id, age string) ([]byte, error) {
+func HitURL(district_id, age string) ([]OutputInfo, error) {
 	date := time.Now().Format(dateLayout)
 	url := fmt.Sprintf("https://cdn-api.co-vin.in/api/v2/appointment/sessions/calendarByDistrict?district_id=%v&date=%v", district_id, date)
 
@@ -147,12 +155,7 @@ func HitURL(district_id, age string) ([]byte, error) {
 		return nil, nil
 	}
 
-	output, err := json.MarshalIndent(availabilites, " ", " ")
-	if err != nil {
-		return nil, err
-	}
-
-	return output, nil
+	return availabilites, nil
 }
 
 func filterConditions(s Session, minAge int) bool {
