@@ -117,7 +117,7 @@ func HitURL(district_id, age string) ([]OutputInfo, error) {
 	centers := Centers{}
 	availabilites := []OutputInfo{}
 
-	log.Printf(url)
+	log.Println(url)
 
 	resp, err := http.Get(url)
 	if err != nil {
@@ -129,11 +129,9 @@ func HitURL(district_id, age string) ([]OutputInfo, error) {
 		return nil, err
 	}
 
-	// log.Println(string(body))
-
 	err = json.Unmarshal(body, &centers)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("json Error: '%v' | body : '%v'", err, string(body))
 	}
 
 	minAge, err := strconv.Atoi(age)
