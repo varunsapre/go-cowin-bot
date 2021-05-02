@@ -5,13 +5,14 @@ import (
 	cowinapi "go-cowin-bot/cowin-api"
 	"log"
 	"os"
+	"strings"
 	"time"
 
 	"github.com/bwmarrin/discordgo"
 )
 
 const (
-	DcordMsg = "CenterID: %v\nCenterName: %v\nPincode: %v\nFeeType: %v\nAvailableCapacity: %v\nMinAge: %v\nVaccineName: %v\nSlots: %v\nDate: %v"
+	DcordMsg = " \nCenter Name: %v\nAvailable Capacity: %v\nMin Age: %v\nVaccine Name: %v\nFee Type: %v\nSlots: %v\nDate: %v\nPincode: %v"
 )
 
 func Start(killCh chan os.Signal) {
@@ -46,8 +47,6 @@ func Start(killCh chan os.Signal) {
 
 	log.Println("Polling CoWin API")
 
-	time.Sleep(2 * time.Second)
-
 	// todo make it poll until stopped
 	for {
 		time.Sleep(1 * time.Minute)
@@ -59,8 +58,11 @@ func Start(killCh chan os.Signal) {
 		}
 
 		if output != nil {
+			dg.ChannelMessageSend(ChannelID, "------------------------------------------------------------------------------")
 			for _, o := range output {
-				msg := fmt.Sprintf(DcordMsg, o.CenterID, o.CenterName, o.Pincode, o.FeeType, o.AvailableCapacity, o.MinAge, o.VaccineName, o.Slots, o.Date)
+				slots := strings.Join(o.Slots, ", ")
+				msg := fmt.Sprintf(DcordMsg, o.CenterName, o.AvailableCapacity, o.MinAge, o.VaccineName, o.FeeType, slots, o.Date, o.Pincode)
+
 				dg.ChannelMessageSend(ChannelID, string(msg))
 			}
 		}
