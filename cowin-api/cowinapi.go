@@ -117,7 +117,7 @@ func HitURL(district_id, age string) ([]OutputInfo, error) {
 	centers := Centers{}
 	availabilites := []OutputInfo{}
 
-	log.Printf("hitting: %v", url)
+	log.Printf(url)
 
 	resp, err := http.Get(url)
 	if err != nil {
@@ -149,7 +149,7 @@ func HitURL(district_id, age string) ([]OutputInfo, error) {
 		}
 	}
 
-	log.Printf("minAge: %v, No. Of Availabilites: %v", minAge, len(availabilites))
+	log.Printf("\tDisctrictID : %v | MinimumAge: %v | Centers Available: %v", district_id, minAge, len(availabilites))
 
 	if len(availabilites) == 0 {
 		return nil, nil
