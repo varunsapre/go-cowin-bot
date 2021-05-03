@@ -53,7 +53,7 @@ func Start(killCh chan os.Signal) {
 
 	// todo make it poll until stopped
 	for {
-		time.Sleep(1 * time.Minute)
+		time.Sleep(15 * time.Second)
 
 		output, err := cowinapi.GetWeekAvailability("265", "18") //empty date to default to today
 		if err != nil {

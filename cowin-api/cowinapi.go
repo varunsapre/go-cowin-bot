@@ -134,10 +134,11 @@ func getAvailabilites(w http.ResponseWriter, r *http.Request) {
 func GetWeekAvailability(district_id, age string) ([]OutputInfo, error) {
 	today := time.Now()
 	weekAvailability := []OutputInfo{}
+	numDays := 10
 
-	log.Println("fetching 1 week availabilites")
+	log.Printf("fetching for %v days", numDays)
 
-	for i := 0; i < 7; i++ {
+	for i := 0; i < numDays; i++ {
 		d := today.AddDate(0, 0, i).Format(dateLayout)
 
 		output, err := HitURL(district_id, age, d)
