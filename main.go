@@ -39,7 +39,7 @@ func main() {
 	sc := make(chan os.Signal, 1)
 
 	if !*Cmd && !*ServeDiscordBot {
-		log.Println("set flag '-http' or '-discord'")
+		log.Println("set flag '-cmd' or '-discord'")
 		return
 	}
 
