@@ -68,7 +68,6 @@ func Start(distID, age string, pollTimer, days int, killCh chan os.Signal) {
 				msg := fmt.Sprintf(DcordMsg, o.CenterName, o.Pincode, o.AvailableCapacity, o.Date, o.MinAge, o.VaccineName, o.FeeType, slots)
 				title := fmt.Sprintf("%v - %v", o.CenterName, o.Pincode)
 
-				dg.ChannelMessageSend(ChannelID, string(msg))
 				dg.ChannelMessageSendEmbed(ChannelID, embed.NewGenericEmbed(title, msg))
 			}
 		}
