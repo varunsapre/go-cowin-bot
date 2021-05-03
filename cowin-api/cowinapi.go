@@ -49,7 +49,7 @@ type OutputInfo struct {
 	Date              string   `json:"date"`
 }
 
-func StartCMDOnly(district_id, age string, days, pollTimer int) {
+func StartCMDOnly(district_id, age string, pollTimer, days int) {
 	for {
 		time.Sleep(time.Duration(pollTimer) * time.Second)
 
