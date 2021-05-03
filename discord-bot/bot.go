@@ -20,14 +20,14 @@ func Start(distID, age string, pollTimer, days int, killCh chan os.Signal) {
 	Token := os.Getenv("DISCORD_TOKEN")
 	if Token == "" {
 		log.Println("did not find DISCORD_TOKEN in environment")
-		killCh <- os.Kill
+		killCh <- os.Interrupt
 		return
 	}
 
 	ChannelID := os.Getenv("CHANNEL_ID")
 	if ChannelID == "" {
 		log.Println("did not find CHANNEL_ID in environment")
-		killCh <- os.Kill
+		killCh <- os.Interrupt
 		return
 	}
 
@@ -35,7 +35,7 @@ func Start(distID, age string, pollTimer, days int, killCh chan os.Signal) {
 	dg, err := discordgo.New("Bot " + Token)
 	if err != nil {
 		log.Println("error creating Discord session,", err)
-		killCh <- os.Kill
+		killCh <- os.Interrupt
 		return
 	}
 
@@ -43,7 +43,7 @@ func Start(distID, age string, pollTimer, days int, killCh chan os.Signal) {
 	err = dg.Open()
 	if err != nil {
 		log.Println("error opening connection,", err)
-		killCh <- os.Kill
+		killCh <- os.Interrupt
 		return
 	}
 
