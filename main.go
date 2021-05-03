@@ -16,6 +16,7 @@ var (
 	districtID string
 	age        string
 	pollTimer  int
+	days       int
 
 	ServeHTTP       = flag.Bool("http", false, "Serve HTTP")
 	ServeDiscordBot = flag.Bool("discord", false, "Serve Discord Bot")
@@ -26,11 +27,12 @@ func init() {
 	flag.StringVar(&age, "age", "18", "minimum age")
 
 	flag.IntVar(&pollTimer, "poll", 15, "number of seconds for polling")
+	flag.IntVar(&days, "days", 10, "number of days to check ahead")
 
 	flag.Parse()
 
 	log.Printf("serveHTTP: %v | dcordbot: %v ", *ServeHTTP, *ServeDiscordBot)
-	log.Printf("distID: %v | minAge: %v | pollTimer: %v", districtID, age, pollTimer)
+	log.Printf("distID: %v | minAge: %v | pollTimer: %v | days: %v", districtID, age, pollTimer, days)
 }
 
 func main() {
@@ -46,7 +48,7 @@ func main() {
 	}
 
 	if *ServeDiscordBot {
-		go discordbot.Start(districtID, age, pollTimer, sc)
+		go discordbot.Start(districtID, age, pollTimer, days, sc)
 	}
 
 	// Wait here until CTRL-C or other term signal is received.

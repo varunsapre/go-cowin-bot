@@ -15,7 +15,7 @@ const (
 	DcordMsg = " \nCenter Name: %v\nAvailable Capacity: %v\nMin Age: %v\nVaccine Name: %v\nFee Type: %v\nSlots: %v\nDate: %v\nPincode: %v\n----X----"
 )
 
-func Start(distID, age string, pollTimer int, killCh chan os.Signal) {
+func Start(distID, age string, pollTimer, days int, killCh chan os.Signal) {
 	Token := os.Getenv("DISCORD_TOKEN")
 	if Token == "" {
 		log.Println("did not find DISCORD_TOKEN in environment")
@@ -55,7 +55,7 @@ func Start(distID, age string, pollTimer int, killCh chan os.Signal) {
 	for {
 		time.Sleep(time.Duration(pollTimer) * time.Second)
 
-		output, err := cowinapi.GetWeekAvailability(distID, age) //empty date to default to today
+		output, err := GetBulkAvailability(distID, age, days) //empty date to default to today
 		if err != nil {
 			log.Println("ERROR: ", err)
 			continue
@@ -71,4 +71,25 @@ func Start(distID, age string, pollTimer int, killCh chan os.Signal) {
 			}
 		}
 	}
+}
+
+func GetBulkAvailability(district_id, age string, days int) ([]cowinapi.OutputInfo, error) {
+	today := time.Now()
+	weekAvailability := []cowinapi.OutputInfo{}
+	numDays := days
+
+	log.Printf("fetching for %v days", numDays)
+
+	for i := 0; i < numDays; i++ {
+		d := today.AddDate(0, 0, i).Format(cowinapi.DateLayout)
+
+		output, err := cowinapi.HitURL(district_id, age, d)
+		if err != nil {
+			log.Printf("Error for date '%v': %v", d, err)
+		}
+
+		weekAvailability = append(weekAvailability, output...)
+	}
+
+	return weekAvailability, nil
 }
