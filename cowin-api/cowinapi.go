@@ -8,8 +8,6 @@ import (
 	"net/http"
 	"strconv"
 	"time"
-
-	"github.com/gorilla/mux"
 )
 
 const (
@@ -51,58 +49,41 @@ type OutputInfo struct {
 	Date              string   `json:"date"`
 }
 
-func Serve() {
-	r := mux.NewRouter()
-	r.HandleFunc("/{district_id}/{age}", getAvailabilites)
-	http.Handle("/", r)
+func StartCMDOnly(district_id, age string, days, pollTimer int) {
+	for {
+		time.Sleep(time.Duration(pollTimer) * time.Second)
 
-	srv := &http.Server{
-		Handler: r,
-		Addr:    "127.0.0.1:8000",
-		// Good practice: enforce timeouts for servers you create!
-		WriteTimeout: 15 * time.Second,
-		ReadTimeout:  15 * time.Second,
+		output, err := GetBulkAvailability(district_id, age, days)
+		if err != nil {
+			log.Println("ERROR: ", err)
+			continue
+		}
+
+		for _, o := range output {
+			log.Printf("\t\t%v - %v | capacity: %v | Date: %v", o.CenterName, o.Pincode, o.AvailableCapacity, o.Date)
+		}
 	}
-
-	log.Fatal(srv.ListenAndServe())
 }
 
-func getAvailabilites(w http.ResponseWriter, r *http.Request) {
-	vars := mux.Vars(r)
+func GetBulkAvailability(district_id, age string, days int) ([]OutputInfo, error) {
+	today := time.Now()
+	weekAvailability := []OutputInfo{}
+	numDays := days
 
-	district_id, ok := vars["district_id"]
-	if !ok {
-		// default districit to 265 (bengaluru urban)
-		district_id = "265"
+	log.Printf("fetching for %v days", numDays)
+
+	for i := 0; i < numDays; i++ {
+		d := today.AddDate(0, 0, i).Format(DateLayout)
+
+		output, err := HitURL(district_id, age, d)
+		if err != nil {
+			log.Printf("Error for date '%v': %v", d, err)
+		}
+
+		weekAvailability = append(weekAvailability, output...)
 	}
 
-	varAge, ok := vars["age"]
-	if !ok {
-		// default minimun age to 18
-		varAge = "18"
-	}
-
-	output, err := HitURL(district_id, varAge, "") //empty date to default to today
-	if err != nil {
-		w.WriteHeader(http.StatusInternalServerError)
-		w.Write([]byte(err.Error()))
-		return
-	}
-
-	if output == nil {
-		msg := fmt.Sprintf("disctrictID : %v | minimumAge: %v | NO VACANCIES", district_id, varAge)
-		w.Write([]byte(msg))
-		return
-	}
-
-	strOutput, err := json.MarshalIndent(output, " ", " ")
-	if err != nil {
-		w.WriteHeader(http.StatusInternalServerError)
-		w.Write([]byte(err.Error()))
-		return
-	}
-
-	w.Write(strOutput)
+	return weekAvailability, nil
 }
 
 func HitURL(district_id, age, date string) ([]OutputInfo, error) {

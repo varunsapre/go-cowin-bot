@@ -51,11 +51,10 @@ func Start(distID, age string, pollTimer, days int, killCh chan os.Signal) {
 
 	log.Println("Polling CoWin API:")
 
-	// todo make it poll until stopped
 	for {
 		time.Sleep(time.Duration(pollTimer) * time.Second)
 
-		output, err := GetBulkAvailability(distID, age, days) //empty date to default to today
+		output, err := cowinapi.GetBulkAvailability(distID, age, days)
 		if err != nil {
 			log.Println("ERROR: ", err)
 			continue
@@ -71,25 +70,4 @@ func Start(distID, age string, pollTimer, days int, killCh chan os.Signal) {
 			}
 		}
 	}
-}
-
-func GetBulkAvailability(district_id, age string, days int) ([]cowinapi.OutputInfo, error) {
-	today := time.Now()
-	weekAvailability := []cowinapi.OutputInfo{}
-	numDays := days
-
-	log.Printf("fetching for %v days", numDays)
-
-	for i := 0; i < numDays; i++ {
-		d := today.AddDate(0, 0, i).Format(cowinapi.DateLayout)
-
-		output, err := cowinapi.HitURL(district_id, age, d)
-		if err != nil {
-			log.Printf("Error for date '%v': %v", d, err)
-		}
-
-		weekAvailability = append(weekAvailability, output...)
-	}
-
-	return weekAvailability, nil
 }

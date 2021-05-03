@@ -18,7 +18,7 @@ var (
 	pollTimer  int
 	days       int
 
-	ServeHTTP       = flag.Bool("http", false, "Serve HTTP")
+	Cmd             = flag.Bool("cmd", false, "Serve HTTP")
 	ServeDiscordBot = flag.Bool("discord", false, "Serve Discord Bot")
 )
 
@@ -31,20 +31,23 @@ func init() {
 
 	flag.Parse()
 
-	log.Printf("serveHTTP: %v | dcordbot: %v ", *ServeHTTP, *ServeDiscordBot)
+	log.Printf("serveHTTP: %v | dcordbot: %v ", *Cmd, *ServeDiscordBot)
 	log.Printf("distID: %v | minAge: %v | pollTimer: %v | days: %v", districtID, age, pollTimer, days)
 }
 
 func main() {
 	sc := make(chan os.Signal, 1)
 
-	if !*ServeHTTP && !*ServeDiscordBot {
+	if !*Cmd && !*ServeDiscordBot {
 		log.Println("set flag '-http' or '-discord'")
 		return
 	}
 
-	if *ServeHTTP {
-		go cowinapi.Serve()
+	if *Cmd {
+		go cowinapi.StartCMDOnly(districtID, age, pollTimer, days)
+
+		// force discord bot to not start
+		*ServeDiscordBot = false
 	}
 
 	if *ServeDiscordBot {
