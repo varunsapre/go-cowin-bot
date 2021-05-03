@@ -12,7 +12,7 @@ import (
 )
 
 const (
-	DcordMsg = " \nCenter Name: %v\nAvailable Capacity: %v\nMin Age: %v\nVaccine Name: %v\nFee Type: %v\nSlots: %v\nDate: %v\nPincode: %v"
+	DcordMsg = " \nCenter Name: %v\nAvailable Capacity: %v\nMin Age: %v\nVaccine Name: %v\nFee Type: %v\nSlots: %v\nDate: %v\nPincode: %v\n----X----"
 )
 
 func Start(killCh chan os.Signal) {
@@ -49,20 +49,20 @@ func Start(killCh chan os.Signal) {
 	// Cleanly close down the Discord session.
 	defer dg.Close()
 
-	log.Println("Polling CoWin API")
+	log.Println("Polling CoWin API:")
 
 	// todo make it poll until stopped
 	for {
-		time.Sleep(5 * time.Minute)
+		time.Sleep(1 * time.Minute)
 
-		output, err := cowinapi.HitURL("265", "18")
+		output, err := cowinapi.GetWeekAvailability("265", "18") //empty date to default to today
 		if err != nil {
 			log.Println("ERROR: ", err)
 			continue
 		}
 
-		if output != nil {
-			dg.ChannelMessageSend(ChannelID, "------------------------------------------------------------------------------")
+		if len(output) > 0 {
+			dg.ChannelMessageSend(ChannelID, "NEW UPDATE:")
 			for _, o := range output {
 				slots := strings.Join(o.Slots, ", ")
 				msg := fmt.Sprintf(DcordMsg, o.CenterName, o.AvailableCapacity, o.MinAge, o.VaccineName, o.FeeType, slots, o.Date, o.Pincode)

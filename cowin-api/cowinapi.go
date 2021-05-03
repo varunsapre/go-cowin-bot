@@ -87,7 +87,7 @@ func getAvailabilites(w http.ResponseWriter, r *http.Request) {
 		varAge = "18"
 	}
 
-	output, err := HitURL(district_id, varAge)
+	output, err := HitURL(district_id, varAge, "") //empty date to default to today
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		w.Write([]byte(err.Error()))
@@ -110,8 +110,31 @@ func getAvailabilites(w http.ResponseWriter, r *http.Request) {
 	w.Write(strOutput)
 }
 
-func HitURL(district_id, age string) ([]OutputInfo, error) {
-	date := time.Now().Format(dateLayout)
+func GetWeekAvailability(district_id, age string) ([]OutputInfo, error) {
+	today := time.Now()
+	weekAvailability := []OutputInfo{}
+
+	log.Println("fetching 1 week availabilites")
+
+	for i := 0; i < 7; i++ {
+		d := today.AddDate(0, 0, i).Format(dateLayout)
+
+		output, err := HitURL(district_id, age, d)
+		if err != nil {
+			log.Printf("Error for date '%v': %v", d, err)
+		}
+
+		weekAvailability = append(weekAvailability, output...)
+	}
+
+	return weekAvailability, nil
+}
+
+func HitURL(district_id, age, date string) ([]OutputInfo, error) {
+	if date == "" {
+		date = time.Now().Format(dateLayout)
+	}
+
 	url := fmt.Sprintf("https://cdn-api.co-vin.in/api/v2/appointment/sessions/calendarByDistrict?district_id=%v&date=%v", district_id, date)
 
 	centers := Centers{}
