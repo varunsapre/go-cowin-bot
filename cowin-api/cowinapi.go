@@ -98,7 +98,11 @@ func HitURL(district_id, age, date string) ([]OutputInfo, error) {
 
 	log.Println(url)
 
-	resp, err := http.Get(url)
+	client := http.Client{
+		Timeout: 1 * time.Second,
+	}
+
+	resp, err := client.Get(url)
 	if err != nil {
 		return nil, err
 	}
@@ -138,7 +142,7 @@ func filterConditions(s Session, minAge int) bool {
 		return false
 	}
 
-	if s.AvailableCapacity <= 0 {
+	if s.AvailableCapacity <= 2 {
 		return false
 	}
 
