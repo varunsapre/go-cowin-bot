@@ -16,27 +16,49 @@ const (
 	dateLayout = "02-01-2006"
 )
 
-type Centers struct {
-	Centers []Center `json:"centers"`
-}
+// {
+// 	"center_id": 249096,
+// 	"name": "Sulikere PHC",
+// 	"state_name": "Karnataka",
+// 	"district_name": "Bangalore Urban",
+// 	"block_name": "Bengaluru South",
+// 	"pincode": 560060,
+// 	"from": "10:00:00",
+// 	"to": "16:00:00",
+// 	"lat": 12,
+// 	"long": 77,
+// 	"fee_type": "Free",
+// 	"session_id": "c4860857-26d9-4cd1-a08a-f0042ee2866c",
+// 	"date": "03-05-2021",
+// 	"available_capacity": 1,
+// 	"fee": "0",
+// 	"min_age_limit": 45,
+// 	"vaccine": "COVISHIELD",
+// 	"slots": [
+// 	  "10:00AM-11:00AM",
+// 	  "11:00AM-12:00PM",
+// 	  "12:00PM-01:00PM",
+// 	  "01:00PM-04:00PM"
+// 	]
+//   },
 
-type Center struct {
-	ID           int       `json:"center_id"`
-	Name         string    `json:"name"`
-	StateName    string    `json:"state_name"`
-	DistrictName string    `json:"district_name"`
-	BlockName    string    `json:"block_name"`
-	Pincode      int       `json:"pincode"`
-	Lat          float64   `json:"lat"`
-	Lonf         float64   `json:"long"`
-	TimeFrom     string    `json:"from"`
-	TimeTo       string    `json:"to"`
-	FeeType      string    `json:"fee_type"`
-	Sessions     []Session `json:"sessions"`
+type Centers struct {
+	Sessions []Session `json:"sessions"`
 }
 
 type Session struct {
-	ID                string   `json:"session_id"`
+	CenterID          int      `json:"center_id"`
+	Name              string   `json:"name"`
+	StateName         string   `json:"state_name"`
+	DistrictName      string   `json:"district_name"`
+	BlockName         string   `json:"block_name"`
+	Pincode           int      `json:"pincode"`
+	Lat               float64  `json:"lat"`
+	Lonf              float64  `json:"long"`
+	TimeFrom          string   `json:"from"`
+	TimeTo            string   `json:"to"`
+	FeeType           string   `json:"fee_type"`
+	SessionID         string   `json:"session_id"`
 	Date              string   `json:"date"`
 	AvailableCapacity int      `json:"available_capacity"`
 	MinAge            int      `json:"min_age_limit"`
@@ -45,7 +67,6 @@ type Session struct {
 }
 
 type OutputInfo struct {
-	CenterID          int      `json:"center_id"`
 	CenterName        string   `json:"center_name"`
 	Pincode           int      `json:"pincode"`
 	FeeType           string   `json:"fee"`
@@ -135,7 +156,7 @@ func HitURL(district_id, age, date string) ([]OutputInfo, error) {
 		date = time.Now().Format(dateLayout)
 	}
 
-	url := fmt.Sprintf("https://cdn-api.co-vin.in/api/v2/appointment/sessions/calendarByDistrict?district_id=%v&date=%v", district_id, date)
+	url := fmt.Sprintf("https://cdn-api.co-vin.in/api/v2/appointment/sessions/public/findByDistrict?district_id=%v&date=%v", district_id, date)
 
 	centers := Centers{}
 	availabilites := []OutputInfo{}
@@ -162,11 +183,9 @@ func HitURL(district_id, age, date string) ([]OutputInfo, error) {
 		return nil, err
 	}
 
-	for _, center := range centers.Centers {
-		for _, s := range center.Sessions {
-			if filterConditions(s, minAge) {
-				availabilites = append(availabilites, createOutput(center, s))
-			}
+	for _, s := range centers.Sessions {
+		if filterConditions(s, minAge) {
+			availabilites = append(availabilites, createOutput(s))
 		}
 	}
 
@@ -191,12 +210,11 @@ func filterConditions(s Session, minAge int) bool {
 	return true
 }
 
-func createOutput(center Center, s Session) OutputInfo {
+func createOutput(s Session) OutputInfo {
 	return OutputInfo{
-		CenterID:          center.ID,
-		CenterName:        center.Name,
-		Pincode:           center.Pincode,
-		FeeType:           center.FeeType,
+		CenterName:        s.Name,
+		Pincode:           s.Pincode,
+		FeeType:           s.FeeType,
 		AvailableCapacity: s.AvailableCapacity,
 		MinAge:            s.MinAge,
 		VaccineName:       s.VaccineName,
