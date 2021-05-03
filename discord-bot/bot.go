@@ -15,7 +15,7 @@ const (
 	DcordMsg = " \nCenter Name: %v\nAvailable Capacity: %v\nMin Age: %v\nVaccine Name: %v\nFee Type: %v\nSlots: %v\nDate: %v\nPincode: %v\n----X----"
 )
 
-func Start(killCh chan os.Signal) {
+func Start(distID, age string, pollTimer int, killCh chan os.Signal) {
 	Token := os.Getenv("DISCORD_TOKEN")
 	if Token == "" {
 		log.Println("did not find DISCORD_TOKEN in environment")
@@ -53,9 +53,9 @@ func Start(killCh chan os.Signal) {
 
 	// todo make it poll until stopped
 	for {
-		time.Sleep(15 * time.Second)
+		time.Sleep(time.Duration(pollTimer) * time.Second)
 
-		output, err := cowinapi.GetWeekAvailability("265", "18") //empty date to default to today
+		output, err := cowinapi.GetWeekAvailability(distID, age) //empty date to default to today
 		if err != nil {
 			log.Println("ERROR: ", err)
 			continue

@@ -11,21 +11,32 @@ import (
 )
 
 var (
-	Token           string
-	ChannelID       string
+	Token      string
+	ChannelID  string
+	districtID string
+	age        string
+	pollTimer  int
+
 	ServeHTTP       = flag.Bool("http", false, "Serve HTTP")
 	ServeDiscordBot = flag.Bool("discord", false, "Serve Discord Bot")
 )
 
 func init() {
+	flag.StringVar(&districtID, "district_id", "294", "district id for bot to check")
+	flag.StringVar(&age, "age", "18", "minimum age")
+
+	flag.IntVar(&pollTimer, "poll", 15, "number of seconds for polling")
+
 	flag.Parse()
+
 	log.Printf("serveHTTP: %v | dcordbot: %v ", *ServeHTTP, *ServeDiscordBot)
+	log.Printf("distID: %v | minAge: %v | pollTimer: %v", districtID, age, pollTimer)
 }
 
 func main() {
 	sc := make(chan os.Signal, 1)
 
-	if *ServeHTTP == false && *ServeDiscordBot == false {
+	if !*ServeHTTP && !*ServeDiscordBot {
 		log.Println("set flag '-http' or '-discord'")
 		return
 	}
@@ -35,7 +46,7 @@ func main() {
 	}
 
 	if *ServeDiscordBot {
-		go discordbot.Start(sc)
+		go discordbot.Start(districtID, age, pollTimer, sc)
 	}
 
 	// Wait here until CTRL-C or other term signal is received.
