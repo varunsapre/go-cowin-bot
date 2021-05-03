@@ -13,34 +13,8 @@ import (
 )
 
 const (
-	dateLayout = "02-01-2006"
+	DateLayout = "02-01-2006"
 )
-
-// {
-// 	"center_id": 249096,
-// 	"name": "Sulikere PHC",
-// 	"state_name": "Karnataka",
-// 	"district_name": "Bangalore Urban",
-// 	"block_name": "Bengaluru South",
-// 	"pincode": 560060,
-// 	"from": "10:00:00",
-// 	"to": "16:00:00",
-// 	"lat": 12,
-// 	"long": 77,
-// 	"fee_type": "Free",
-// 	"session_id": "c4860857-26d9-4cd1-a08a-f0042ee2866c",
-// 	"date": "03-05-2021",
-// 	"available_capacity": 1,
-// 	"fee": "0",
-// 	"min_age_limit": 45,
-// 	"vaccine": "COVISHIELD",
-// 	"slots": [
-// 	  "10:00AM-11:00AM",
-// 	  "11:00AM-12:00PM",
-// 	  "12:00PM-01:00PM",
-// 	  "01:00PM-04:00PM"
-// 	]
-//   },
 
 type Centers struct {
 	Sessions []Session `json:"sessions"`
@@ -60,7 +34,7 @@ type Session struct {
 	FeeType           string   `json:"fee_type"`
 	SessionID         string   `json:"session_id"`
 	Date              string   `json:"date"`
-	AvailableCapacity int      `json:"available_capacity"`
+	AvailableCapacity float64  `json:"available_capacity"`
 	MinAge            int      `json:"min_age_limit"`
 	VaccineName       string   `json:"vaccine"`
 	Slots             []string `json:"slots"`
@@ -70,7 +44,7 @@ type OutputInfo struct {
 	CenterName        string   `json:"center_name"`
 	Pincode           int      `json:"pincode"`
 	FeeType           string   `json:"fee"`
-	AvailableCapacity int      `json:"available_capacity"`
+	AvailableCapacity float64  `json:"available_capacity"`
 	MinAge            int      `json:"min_age"`
 	VaccineName       string   `json:"vaccine"`
 	Slots             []string `json:"slots"`
@@ -131,30 +105,9 @@ func getAvailabilites(w http.ResponseWriter, r *http.Request) {
 	w.Write(strOutput)
 }
 
-func GetWeekAvailability(district_id, age string) ([]OutputInfo, error) {
-	today := time.Now()
-	weekAvailability := []OutputInfo{}
-	numDays := 10
-
-	log.Printf("fetching for %v days", numDays)
-
-	for i := 0; i < numDays; i++ {
-		d := today.AddDate(0, 0, i).Format(dateLayout)
-
-		output, err := HitURL(district_id, age, d)
-		if err != nil {
-			log.Printf("Error for date '%v': %v", d, err)
-		}
-
-		weekAvailability = append(weekAvailability, output...)
-	}
-
-	return weekAvailability, nil
-}
-
 func HitURL(district_id, age, date string) ([]OutputInfo, error) {
 	if date == "" {
-		date = time.Now().Format(dateLayout)
+		date = time.Now().Format(DateLayout)
 	}
 
 	url := fmt.Sprintf("https://cdn-api.co-vin.in/api/v2/appointment/sessions/public/findByDistrict?district_id=%v&date=%v", district_id, date)
