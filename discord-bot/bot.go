@@ -13,7 +13,7 @@ import (
 )
 
 const (
-	DcordMsg = "_\nCenter Name: *%v* \nPincode: *%v*\nAvailable Capacity: %v\nDate: %v\nMin Age: %v\nVaccine Name: %v\nFee Type: %v\nSlots: %v\n----X----"
+	DcordMsg = "Available Capacity: %v\nDate: %v\nMin Age: %v\nVaccine Name: %v\nFee Type: %v\nSlots: %v"
 )
 
 func Start(distID, age string, pollTimer, days int, killCh chan os.Signal) {
@@ -65,10 +65,10 @@ func Start(distID, age string, pollTimer, days int, killCh chan os.Signal) {
 			dg.ChannelMessageSend(ChannelID, "NEW UPDATE:")
 			for _, o := range output {
 				slots := strings.Join(o.Slots, ", ")
-				msg := fmt.Sprintf(DcordMsg, o.CenterName, o.Pincode, o.AvailableCapacity, o.Date, o.MinAge, o.VaccineName, o.FeeType, slots)
+				msg := fmt.Sprintf(DcordMsg, o.AvailableCapacity, o.Date, o.MinAge, o.VaccineName, o.FeeType, slots)
 				title := fmt.Sprintf("%v - %v", o.CenterName, o.Pincode)
 
-				dg.ChannelMessageSendEmbed(ChannelID, embed.NewGenericEmbed(title, msg))
+				dg.ChannelMessageSendEmbed(ChannelID, embed.NewGenericEmbedAdvanced(title, msg, 0xc1f175))
 			}
 		}
 	}
