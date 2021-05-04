@@ -4,6 +4,7 @@ import (
 	"fmt"
 	cowinapi "go-cowin-bot/cowin-api"
 	"log"
+	"math/rand"
 	"os"
 	"strings"
 	"time"
@@ -31,6 +32,11 @@ func Start(distID, age string, pollTimer, days int, killCh chan os.Signal) {
 		return
 	}
 
+	ErrorChannel := os.Getenv("ERR_CHANNEL_ID")
+	if ErrorChannel == "" {
+		log.Println("did not find ERR_CHANNEL_ID in environment -- cannot report errors")
+	}
+
 	// Create a new Discord session using the provided bot token.
 	dg, err := discordgo.New("Bot " + Token)
 	if err != nil {
@@ -52,12 +58,23 @@ func Start(distID, age string, pollTimer, days int, killCh chan os.Signal) {
 
 	log.Println("Polling CoWin API:")
 
+	maxSleep := pollTimer + 2
+	minSleep := pollTimer - 2
 	for {
-		time.Sleep(time.Duration(pollTimer) * time.Second)
+		rand.Seed(time.Now().UnixNano())
+		sleeptime := rand.Intn(maxSleep-minSleep) + minSleep
+
+		log.Println("sleeping for: ", sleeptime, "s")
+
+		time.Sleep(time.Duration(sleeptime) * time.Second)
 
 		output, err := cowinapi.GetBulkAvailability(distID, age, days)
 		if err != nil {
 			log.Println("ERROR: ", err)
+			if ErrorChannel != "" {
+				dg.ChannelMessageSendEmbed(ErrorChannel, embed.NewGenericEmbedAdvanced("ERROR", err.Error(), 0x990000))
+			}
+
 			continue
 		}
 
