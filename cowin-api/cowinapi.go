@@ -76,7 +76,7 @@ func GetBulkAvailability(district_id, age string, days int) ([]OutputInfo, error
 		today = today.AddDate(0, 0, 1)
 	}
 
-	log.Printf("polling for: %v + %v days", today.Format(DateLayout), numDays)
+	log.Printf("polling for: %v + %v day(s)", today.Format(DateLayout), numDays-1)
 
 	for i := 0; i < numDays; i++ {
 		d := today.AddDate(0, 0, i).Format(DateLayout)
