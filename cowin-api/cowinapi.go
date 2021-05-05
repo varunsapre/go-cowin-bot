@@ -77,7 +77,8 @@ func GetBulkAvailability(district_id, age string, days int) ([]OutputInfo, error
 
 		output, err := HitURL(district_id, age, d)
 		if err != nil {
-			log.Printf("Error for date '%v': %v", d, err)
+			msg := fmt.Errorf("error for date '%v': %v", d, err)
+			return nil, msg
 		}
 
 		weekAvailability = append(weekAvailability, output...)
