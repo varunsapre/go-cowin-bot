@@ -73,6 +73,7 @@ func Start(distID, age string, pollTimer, days int, killCh chan os.Signal) {
 			log.Println("ERROR: ", err)
 			if ErrorChannel != "" {
 				dg.ChannelMessageSendEmbed(ErrorChannel, embed.NewGenericEmbedAdvanced("ERROR", err.Error(), 0x990000))
+				log.Println("sent to error channel on discord")
 			}
 
 			continue

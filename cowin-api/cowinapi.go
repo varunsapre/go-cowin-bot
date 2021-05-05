@@ -70,14 +70,21 @@ func GetBulkAvailability(district_id, age string, days int) ([]OutputInfo, error
 	weekAvailability := []OutputInfo{}
 	numDays := days
 
-	log.Printf("fetching for %v days", numDays)
+	// stop checking for today if time has crossed 5pm
+	if today.Local().Hour() >= 17 {
+		log.Println(" -- crossed 17:00hrs, not checking for today anymore -- ")
+		today = today.AddDate(0, 0, 1)
+	}
+
+	log.Printf("polling for: %v + %v day(s)", today.Format(DateLayout), numDays-1)
 
 	for i := 0; i < numDays; i++ {
 		d := today.AddDate(0, 0, i).Format(DateLayout)
 
 		output, err := HitURL(district_id, age, d)
 		if err != nil {
-			log.Printf("Error for date '%v': %v", d, err)
+			msg := fmt.Errorf("error for date '%v': %v", d, err)
+			return nil, msg
 		}
 
 		weekAvailability = append(weekAvailability, output...)
