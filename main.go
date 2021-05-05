@@ -11,8 +11,6 @@ import (
 )
 
 var (
-	Token      string
-	ChannelID  string
 	districtID string
 	age        string
 	pollTimer  int
