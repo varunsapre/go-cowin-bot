@@ -109,7 +109,11 @@ func HitURL(district_id, age, date string) ([]OutputInfo, error) {
 		Timeout: 5 * time.Second,
 	}
 
-	resp, err := client.Get(url)
+	req, _ := http.NewRequest("GET", url, nil)
+
+	req.Header.Set("user-agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/90.0.4430.93 Safari/537.36")
+
+	resp, err := client.Do(req)
 	if err != nil {
 		return nil, err
 	}
