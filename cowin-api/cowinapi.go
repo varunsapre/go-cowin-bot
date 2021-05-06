@@ -80,7 +80,7 @@ func GetBulkAvailability(district_id, age string, days int) ([]OutputInfo, error
 	numDays := days
 
 	// stop checking for today if time has crossed 5pm
-	if today.Local().Hour() >= 17 {
+	if today.Hour() >= 17 {
 		log.Println(" -- crossed 17:00hrs, not checking for today anymore -- ")
 		today = today.AddDate(0, 0, 1)
 	}
