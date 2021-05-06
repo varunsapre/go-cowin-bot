@@ -14,6 +14,15 @@ const (
 	DateLayout = "02-01-2006"
 )
 
+var (
+	ist *time.Location
+)
+
+func init() {
+	ist, _ = time.LoadLocation("Asia/Kolkata")
+	log.Println("Start Time: ", time.Now().In(ist))
+}
+
 type Centers struct {
 	Sessions []Session `json:"sessions"`
 }
@@ -66,7 +75,7 @@ func StartCMDOnly(district_id, age string, pollTimer, days int) {
 }
 
 func GetBulkAvailability(district_id, age string, days int) ([]OutputInfo, error) {
-	today := time.Now()
+	today := time.Now().In(ist)
 	weekAvailability := []OutputInfo{}
 	numDays := days
 
