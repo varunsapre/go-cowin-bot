@@ -106,7 +106,7 @@ func HitURL(district_id, age, date string) ([]OutputInfo, error) {
 	log.Println(url)
 
 	client := http.Client{
-		Timeout: 3 * time.Second,
+		Timeout: 5 * time.Second,
 	}
 
 	resp, err := client.Get(url)

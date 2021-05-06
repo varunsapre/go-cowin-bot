@@ -72,8 +72,10 @@ func Start(distID, age string, pollTimer, days int, killCh chan os.Signal) {
 		if err != nil {
 			log.Println("ERROR: ", err)
 			if ErrorChannel != "" {
-				dg.ChannelMessageSendEmbed(ErrorChannel, embed.NewGenericEmbedAdvanced("ERROR", err.Error(), 0x990000))
-				log.Println("sent to error channel on discord")
+				if !strings.Contains(err.Error(), "Client.Timeout exceeded") {
+					dg.ChannelMessageSendEmbed(ErrorChannel, embed.NewGenericEmbedAdvanced("ERROR", err.Error(), 0x990000))
+					log.Println("sent to error channel on discord")
+				}
 			}
 
 			continue
