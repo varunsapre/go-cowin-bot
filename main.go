@@ -11,28 +11,28 @@ import (
 )
 
 var (
-	Token      string
-	ChannelID  string
-	districtID string
-	age        string
-	pollTimer  int
-	days       int
+	Token     string
+	ChannelID string
+	ops       cowinapi.Options
 
 	Cmd             = flag.Bool("cmd", false, "Serve HTTP")
 	ServeDiscordBot = flag.Bool("discord", false, "Serve Discord Bot")
 )
 
 func init() {
-	flag.StringVar(&districtID, "district_id", "294", "district id for bot to check")
-	flag.StringVar(&age, "age", "18", "minimum age")
+	ops = cowinapi.Options{}
+	flag.StringVar(&ops.DistrictID, "district_id", "294", "district id for bot to check")
 
-	flag.IntVar(&pollTimer, "poll", 15, "number of seconds for polling")
-	flag.IntVar(&days, "days", 10, "number of days to check ahead")
+	flag.StringVar(&ops.VaccineName, "vaccine", "", "vaccine name filter")
+
+	flag.IntVar(&ops.Age, "age", 18, "minimum age")
+	flag.IntVar(&ops.AvailableCapacity, "minCapacity", 2, "minimum capacity")
+	flag.IntVar(&ops.PollTimer, "poll", 15, "number of seconds for polling")
+	flag.IntVar(&ops.Days, "days", 10, "number of days to check ahead")
 
 	flag.Parse()
 
-	log.Printf("serveHTTP: %v | dcordbot: %v ", *Cmd, *ServeDiscordBot)
-	log.Printf("distID: %v | minAge: %v | pollTimer: %v | days: %v", districtID, age, pollTimer, days)
+	log.Printf("Options:\n\t%#v", ops)
 }
 
 func main() {
@@ -44,15 +44,17 @@ func main() {
 	}
 
 	if *Cmd {
-		go cowinapi.StartCMDOnly(districtID, age, pollTimer, days)
+		go cowinapi.StartCMDOnly(&ops)
 
 		// force discord bot to not start
 		*ServeDiscordBot = false
 	}
 
 	if *ServeDiscordBot {
-		go discordbot.Start(districtID, age, pollTimer, days, sc)
+		go discordbot.Start(&ops, sc)
 	}
+
+	log.Printf("serveHTTP: %v | dcordbot: %v ", *Cmd, *ServeDiscordBot)
 
 	// Wait here until CTRL-C or other term signal is received.
 	log.Println("Bot is now running. Press CTRL+C to exit.")

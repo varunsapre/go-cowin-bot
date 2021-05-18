@@ -6,7 +6,6 @@ import (
 	"io/ioutil"
 	"log"
 	"net/http"
-	"strconv"
 	"time"
 )
 
@@ -58,11 +57,21 @@ type OutputInfo struct {
 	Date              string   `json:"date"`
 }
 
-func StartCMDOnly(district_id, age string, pollTimer, days int) {
-	for {
-		time.Sleep(time.Duration(pollTimer) * time.Second)
+type Options struct {
+	DistrictID  string
+	VaccineName string
 
-		output, err := GetBulkAvailability(district_id, age, days)
+	Age               int
+	AvailableCapacity int
+	PollTimer         int
+	Days              int
+}
+
+func StartCMDOnly(op *Options) {
+	for {
+		time.Sleep(time.Duration(op.PollTimer) * time.Second)
+
+		output, err := GetBulkAvailability(op)
 		if err != nil {
 			log.Println("ERROR: ", err)
 			continue
@@ -74,10 +83,10 @@ func StartCMDOnly(district_id, age string, pollTimer, days int) {
 	}
 }
 
-func GetBulkAvailability(district_id, age string, days int) ([]OutputInfo, error) {
+func GetBulkAvailability(op *Options) ([]OutputInfo, error) {
 	today := time.Now().In(ist)
 	weekAvailability := []OutputInfo{}
-	numDays := days
+	numDays := op.Days
 
 	// stop checking for today if time has crossed 5pm
 	if today.Hour() >= 17 {
@@ -90,7 +99,7 @@ func GetBulkAvailability(district_id, age string, days int) ([]OutputInfo, error
 	for i := 0; i < numDays; i++ {
 		d := today.AddDate(0, 0, i).Format(DateLayout)
 
-		output, err := HitURL(district_id, age, d)
+		output, err := HitURL(op, d)
 		if err != nil {
 			msg := fmt.Errorf("error for date '%v': %v", d, err)
 			return nil, msg
@@ -102,12 +111,12 @@ func GetBulkAvailability(district_id, age string, days int) ([]OutputInfo, error
 	return weekAvailability, nil
 }
 
-func HitURL(district_id, age, date string) ([]OutputInfo, error) {
+func HitURL(op *Options, date string) ([]OutputInfo, error) {
 	if date == "" {
 		date = time.Now().Format(DateLayout)
 	}
 
-	url := fmt.Sprintf("https://cdn-api.co-vin.in/api/v2/appointment/sessions/public/findByDistrict?district_id=%v&date=%v", district_id, date)
+	url := fmt.Sprintf("https://cdn-api.co-vin.in/api/v2/appointment/sessions/public/findByDistrict?district_id=%v&date=%v", op.DistrictID, date)
 
 	centers := Centers{}
 	availabilites := []OutputInfo{}
@@ -137,18 +146,13 @@ func HitURL(district_id, age, date string) ([]OutputInfo, error) {
 		return nil, fmt.Errorf("json Error: '%v' | body : '%v'", err, string(body))
 	}
 
-	minAge, err := strconv.Atoi(age)
-	if err != nil {
-		return nil, err
-	}
-
 	for _, s := range centers.Sessions {
-		if filterConditions(s, minAge) {
+		if filterConditions(s, op) {
 			availabilites = append(availabilites, createOutput(s))
 		}
 	}
 
-	log.Printf("\tDisctrictID : %v | MinimumAge: %v | Centers Available: %v", district_id, minAge, len(availabilites))
+	log.Printf("\tDisctrictID : %v | MinimumAge: %v | Centers Available: %v", op.DistrictID, op.Age, len(availabilites))
 
 	if len(availabilites) == 0 {
 		return nil, nil
@@ -157,12 +161,16 @@ func HitURL(district_id, age, date string) ([]OutputInfo, error) {
 	return availabilites, nil
 }
 
-func filterConditions(s Session, minAge int) bool {
-	if s.MinAge > minAge {
+func filterConditions(s Session, op *Options) bool {
+	if s.MinAge > op.Age {
 		return false
 	}
 
-	if s.AvailableCapacity <= 2 {
+	if s.AvailableCapacity <= float64(op.AvailableCapacity) {
+		return false
+	}
+
+	if op.VaccineName != "" && s.VaccineName != op.VaccineName {
 		return false
 	}
 

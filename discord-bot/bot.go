@@ -17,7 +17,7 @@ const (
 	DcordMsg = "Available Capacity: %v\nDate: %v\nMin Age: %v\nVaccine Name: %v\nFee Type: %v\nSlots: %v"
 )
 
-func Start(distID, age string, pollTimer, days int, killCh chan os.Signal) {
+func Start(op *cowinapi.Options, killCh chan os.Signal) {
 	Token := os.Getenv("DISCORD_TOKEN")
 	if Token == "" {
 		log.Println("did not find DISCORD_TOKEN in environment")
@@ -58,8 +58,8 @@ func Start(distID, age string, pollTimer, days int, killCh chan os.Signal) {
 
 	log.Println("Polling CoWin API:")
 
-	maxSleep := pollTimer + 2
-	minSleep := pollTimer - 2
+	maxSleep := op.PollTimer + 2
+	minSleep := op.PollTimer - 2
 	for {
 		rand.Seed(time.Now().UnixNano())
 		sleeptime := rand.Intn(maxSleep-minSleep) + minSleep
@@ -68,7 +68,7 @@ func Start(distID, age string, pollTimer, days int, killCh chan os.Signal) {
 
 		time.Sleep(time.Duration(sleeptime) * time.Second)
 
-		output, err := cowinapi.GetBulkAvailability(distID, age, days)
+		output, err := cowinapi.GetBulkAvailability(op)
 		if err != nil {
 			log.Println("ERROR: ", err)
 			if ErrorChannel != "" {
