@@ -29,6 +29,7 @@ func init() {
 	flag.IntVar(&ops.AvailableCapacity, "minCapacity", 2, "minimum capacity")
 	flag.IntVar(&ops.PollTimer, "poll", 15, "number of seconds for polling")
 	flag.IntVar(&ops.Days, "days", 10, "number of days to check ahead")
+	flag.IntVar(&ops.DoseNum, "doseNumber", 1, "1 or 2")
 
 	flag.Parse()
 

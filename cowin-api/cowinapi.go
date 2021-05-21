@@ -27,34 +27,38 @@ type Centers struct {
 }
 
 type Session struct {
-	CenterID          int      `json:"center_id"`
-	Name              string   `json:"name"`
-	StateName         string   `json:"state_name"`
-	DistrictName      string   `json:"district_name"`
-	BlockName         string   `json:"block_name"`
-	Pincode           int      `json:"pincode"`
-	Lat               float64  `json:"lat"`
-	Lonf              float64  `json:"long"`
-	TimeFrom          string   `json:"from"`
-	TimeTo            string   `json:"to"`
-	FeeType           string   `json:"fee_type"`
-	SessionID         string   `json:"session_id"`
-	Date              string   `json:"date"`
-	AvailableCapacity float64  `json:"available_capacity"`
-	MinAge            int      `json:"min_age_limit"`
-	VaccineName       string   `json:"vaccine"`
-	Slots             []string `json:"slots"`
+	CenterID               int      `json:"center_id"`
+	Name                   string   `json:"name"`
+	StateName              string   `json:"state_name"`
+	DistrictName           string   `json:"district_name"`
+	BlockName              string   `json:"block_name"`
+	Pincode                int      `json:"pincode"`
+	Lat                    float64  `json:"lat"`
+	Lonf                   float64  `json:"long"`
+	TimeFrom               string   `json:"from"`
+	TimeTo                 string   `json:"to"`
+	FeeType                string   `json:"fee_type"`
+	SessionID              string   `json:"session_id"`
+	Date                   string   `json:"date"`
+	AvailableCapacity      float64  `json:"available_capacity"`
+	AvailableCapacityDose1 float64  `json:"available_capacity_dose1"`
+	AvailableCapacityDose2 float64  `json:"available_capacity_dose2"`
+	MinAge                 int      `json:"min_age_limit"`
+	VaccineName            string   `json:"vaccine"`
+	Slots                  []string `json:"slots"`
 }
 
 type OutputInfo struct {
-	CenterName        string   `json:"center_name"`
-	Pincode           int      `json:"pincode"`
-	FeeType           string   `json:"fee"`
-	AvailableCapacity float64  `json:"available_capacity"`
-	MinAge            int      `json:"min_age"`
-	VaccineName       string   `json:"vaccine"`
-	Slots             []string `json:"slots"`
-	Date              string   `json:"date"`
+	CenterName             string   `json:"center_name"`
+	Pincode                int      `json:"pincode"`
+	FeeType                string   `json:"fee"`
+	AvailableCapacity      float64  `json:"available_capacity"`
+	AvailableCapacityDose1 float64  `json:"available_capacity_dose1"`
+	AvailableCapacityDose2 float64  `json:"available_capacity_dose2"`
+	MinAge                 int      `json:"min_age"`
+	VaccineName            string   `json:"vaccine"`
+	Slots                  []string `json:"slots"`
+	Date                   string   `json:"date"`
 }
 
 type Options struct {
@@ -65,6 +69,7 @@ type Options struct {
 	AvailableCapacity int
 	PollTimer         int
 	Days              int
+	DoseNum           int
 }
 
 func StartCMDOnly(op *Options) {
@@ -166,12 +171,20 @@ func filterConditions(s Session, op *Options) bool {
 		return false
 	}
 
-	if s.AvailableCapacity <= float64(op.AvailableCapacity) {
+	if op.VaccineName != "" && s.VaccineName != op.VaccineName {
 		return false
 	}
 
-	if op.VaccineName != "" && s.VaccineName != op.VaccineName {
-		return false
+	// by default check against dose 1 capacity
+	switch op.DoseNum {
+	case 2:
+		if s.AvailableCapacityDose2 <= float64(op.AvailableCapacity) {
+			return false
+		}
+	default:
+		if s.AvailableCapacityDose1 <= float64(op.AvailableCapacity) {
+			return false
+		}
 	}
 
 	return true
@@ -179,13 +192,15 @@ func filterConditions(s Session, op *Options) bool {
 
 func createOutput(s Session) OutputInfo {
 	return OutputInfo{
-		CenterName:        s.Name,
-		Pincode:           s.Pincode,
-		FeeType:           s.FeeType,
-		AvailableCapacity: s.AvailableCapacity,
-		MinAge:            s.MinAge,
-		VaccineName:       s.VaccineName,
-		Slots:             s.Slots,
-		Date:              s.Date,
+		CenterName:             s.Name,
+		Pincode:                s.Pincode,
+		FeeType:                s.FeeType,
+		AvailableCapacity:      s.AvailableCapacity,
+		AvailableCapacityDose1: s.AvailableCapacityDose1,
+		AvailableCapacityDose2: s.AvailableCapacityDose2,
+		MinAge:                 s.MinAge,
+		VaccineName:            s.VaccineName,
+		Slots:                  s.Slots,
+		Date:                   s.Date,
 	}
 }
