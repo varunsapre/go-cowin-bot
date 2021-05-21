@@ -167,7 +167,7 @@ func HitURL(op *Options, date string) ([]OutputInfo, error) {
 }
 
 func filterConditions(s Session, op *Options) bool {
-	if s.MinAge > op.Age {
+	if s.MinAge != op.Age {
 		return false
 	}
 
