@@ -14,7 +14,7 @@ import (
 )
 
 const (
-	DcordMsg = "Available Capacity: %v\nDate: %v\nMin Age: %v\nVaccine Name: %v\nFee Type: %v\nSlots: %v"
+	DcordMsg = "Total Capacity: %v\nDose 1 slots: %v\n Dose 2 slots: %v\nDate: %v\nMin Age: %v\nVaccine Name: %v\nFee Type: %v\nSlots: %v"
 )
 
 func Start(op *cowinapi.Options, killCh chan os.Signal) {
@@ -85,7 +85,7 @@ func Start(op *cowinapi.Options, killCh chan os.Signal) {
 			dg.ChannelMessageSend(ChannelID, "NEW UPDATE:")
 			for _, o := range output {
 				slots := strings.Join(o.Slots, ", ")
-				msg := fmt.Sprintf(DcordMsg, o.AvailableCapacity, o.Date, o.MinAge, o.VaccineName, o.FeeType, slots)
+				msg := fmt.Sprintf(DcordMsg, o.AvailableCapacity, o.AvailableCapacityDose1, o.AvailableCapacityDose2, o.Date, o.MinAge, o.VaccineName, o.FeeType, slots)
 				title := fmt.Sprintf("%v - %v", o.CenterName, o.Pincode)
 
 				dg.ChannelMessageSendEmbed(ChannelID, embed.NewGenericEmbedAdvanced(title, msg, 0xc1f175))
