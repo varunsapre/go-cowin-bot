@@ -157,7 +157,7 @@ func HitURL(op *Options, date string) ([]OutputInfo, error) {
 		}
 	}
 
-	log.Printf("\tDisctrictID : %v | MinimumAge: %v | Centers Available: %v", op.DistrictID, op.Age, len(availabilites))
+	log.Printf("\tDisctrictID : %v | MinimumAge: %v | Dose: %v | VaccineName : %v | Centers Available: %v", op.DistrictID, op.Age, op.DoseNum, op.VaccineName, len(availabilites))
 
 	if len(availabilites) == 0 {
 		return nil, nil
