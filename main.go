@@ -22,7 +22,6 @@ var (
 func init() {
 	ops = cowinapi.Options{}
 	flag.StringVar(&ops.DistrictID, "district_id", "294", "district id for bot to check")
-
 	flag.StringVar(&ops.VaccineName, "vaccine", "", "vaccine name filter")
 
 	flag.IntVar(&ops.Age, "age", 18, "minimum age")
@@ -30,6 +29,8 @@ func init() {
 	flag.IntVar(&ops.PollTimer, "poll", 15, "number of seconds for polling")
 	flag.IntVar(&ops.Days, "days", 10, "number of days to check ahead")
 	flag.IntVar(&ops.DoseNum, "doseNumber", 1, "1 or 2")
+
+	flag.BoolVar(&ops.RunAtNight, "night", false, "Serve Discord Bot")
 
 	flag.Parse()
 

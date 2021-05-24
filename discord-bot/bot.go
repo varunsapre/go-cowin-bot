@@ -14,7 +14,7 @@ import (
 )
 
 const (
-	DcordMsg = "Total Capacity: %v\nDose 1 slots: %v\n Dose 2 slots: %v\nDate: %v\nMin Age: %v\nVaccine Name: %v\nFee Type: %v\nSlots: %v"
+	DcordMsg = "Total Capacity: %v\nDose 1 slots: %v\nDose 2 slots: %v\nDate: %v\nMin Age: %v\nVaccine Name: %v\nFee Type: %v\nSlots: %v"
 )
 
 func Start(op *cowinapi.Options, killCh chan os.Signal) {

@@ -70,6 +70,8 @@ type Options struct {
 	PollTimer         int
 	Days              int
 	DoseNum           int
+
+	RunAtNight bool
 }
 
 func StartCMDOnly(op *Options) {
@@ -93,9 +95,15 @@ func GetBulkAvailability(op *Options) ([]OutputInfo, error) {
 	weekAvailability := []OutputInfo{}
 	numDays := op.Days
 
+	// return if bot shouldn't run at night
+	if !op.RunAtNight {
+		if today.Hour() >= 0 && today.Hour() <= 6 {
+			return nil, nil
+		}
+	}
+
 	// stop checking for today if time has crossed 5pm
 	if today.Hour() >= 17 {
-		log.Println(" -- crossed 17:00hrs, not checking for today anymore -- ")
 		today = today.AddDate(0, 0, 1)
 	}
 
