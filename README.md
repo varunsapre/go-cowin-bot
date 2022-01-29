@@ -29,3 +29,9 @@ Optional args:
   -poll        [amount of time between polls to API: default=15]
   -days        [number of days to check for: default = 10]
 ```
+
+# Discord Update Example:
+
+![](go-cowin-bot.jpg)
+
+![](go-cowin-bot-img2.png)
